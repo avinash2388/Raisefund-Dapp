@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Raise Fund</title>
+	<script src="http://rawgit.com/ethereum/web3.js/0.16.0/dist/web3.min.js"></script>
+	<script>
+	  src="https://code.jquery.com/jquery-3.1.1.min.js"
+
+	  </script>
+	 <script>
+		window.addEventListener('load', function() {
+		  // Checking if Web3 has been injected by the browser (Mist/MetaMask)
+		  if (typeof web3 !== 'undefined') {
+		    // Use Mist/MetaMask's provider
+		    web3 = new Web3(web3.currentProvider);
+		  } else {
+		    console.log('No web3? You should consider trying MetaMask!')
+		    // fallback - use your fallback strategy (local node / hosted node + in-dapp id mgmt / fail)
+		    web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
+			}
+			
+      var abi =[
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "_title",
+				"type": "string"
+			},
+			{
+				"name": "_description",
+				"type": "string"
+			},
+			{
+				"name": "_user",
+				"type": "string"
+			},
+			{
+				"name": "_dateOfPost",
+				"type": "uint256"
+			},
+			{
+				"name": "_fundGoal",
+				"type": "uint256"
+			}
+		],
+		"name": "addProject",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"name": "id",
+				"type": "uint256"
+			}
+		],
+		"name": "projAdded",
+		"type": "event"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "_id",
+				"type": "uint256"
+			}
+		],
+		"name": "setStatus",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "_receiever",
+				"type": "address"
+			},
+			{
+				"name": "_amount",
+				"type": "uint256"
+			}
+		],
+		"name": "transfer",
+		"outputs": [],
+		"payable": true,
+		"stateMutability": "payable",
+		"type": "function"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"name": "amount",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"name": "receiver",
+				"type": "address"
+			}
+		],
+		"name": "transferred",
+		"type": "event"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "_id",
+				"type": "uint256"
+			}
+		],
+		"name": "brosweproject",
+		"outputs": [
+			{
+				"name": "",
+				"type": "string"
+			},
+			{
+				"name": "",
+				"type": "string"
+			},
+			{
+				"name": "",
+				"type": "uint256"
+			},
+			{
+				"name": "",
+				"type": "uint256"
+			},
+			{
+				"name": "",
+				"type": "string"
+			},
+			{
+				"name": "",
+				"type": "address"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "_id",
+				"type": "uint256"
+			}
+		],
+		"name": "getAll",
+		"outputs": [
+			{
+				"name": "",
+				"type": "uint256"
+			},
+			{
+				"name": "",
+				"type": "string"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "_id",
+				"type": "uint256"
+			}
+		],
+		"name": "getClosed",
+		"outputs": [
+			{
+				"name": "",
+				"type": "uint256"
+			},
+			{
+				"name": "",
+				"type": "string"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [],
+		"name": "getCount",
+		"outputs": [
+			{
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "_id",
+				"type": "uint256"
+			}
+		],
+		"name": "getOpen",
+		"outputs": [
+			{
+				"name": "",
+				"type": "uint256"
+			},
+			{
+				"name": "",
+				"type": "string"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "_id",
+				"type": "uint256"
+			}
+		],
+		"name": "getStatus",
+		"outputs": [
+			{
+				"name": "",
+				"type": "string"
+			},
+			{
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"name": "projectDetails",
+		"outputs": [
+			{
+				"name": "projectTitle",
+				"type": "string"
+			},
+			{
+				"name": "projectDescription",
+				"type": "string"
+			},
+			{
+				"name": "user",
+				"type": "string"
+			},
+			{
+				"name": "dateOfPost",
+				"type": "uint256"
+			},
+			{
+				"name": "fundGoal",
+				"type": "uint256"
+			},
+			{
+				"name": "totalAmountRaised",
+				"type": "uint256"
+			},
+			{
+				"name": "status",
+				"type": "string"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"name": "projectIdList",
+		"outputs": [
+			{
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"name": "projectToOwner",
+		"outputs": [
+			{
+				"name": "",
+				"type": "address"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "_id",
+				"type": "uint256"
+			},
+			{
+				"name": "_amount",
+				"type": "uint256"
+			}
+		],
+		"name": "setAmountRaised",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	}
+];
+      var MyContract = web3.eth.contract(abi);
+	  var myContractInstance = MyContract.at('0x7d34cd95287041ae3b43263dc74fe02de984170d'); // Deployed contract address
+	  //var myContractInstance = MyContract.at('0xcece7a5306be7ff2acf3102b65255fd720346aef'); // web3 contract address
+		  startApp(abi,MyContract,myContractInstance);
+		})
+  </script>
+  </head>
+
+  <body>
+       <div>
+        <h4>
+			Add project to raise fund.
+        </h4>
+        <div>
+			Project Title &nbsp: <input id='projTitle'><br>
+			Description &nbsp   : <input id='projDesc'><br>
+			User   &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp    : <input id='user'><br>
+			Posting Date  : <input id='dateofPos'><br>
+			Fund Goal &nbsp&nbsp : <input id='fundGoal'><br>
+        </div>
+        
+		<button onclick='addProject()'>Add project</button>
+		</div>
+		<p>
+			<h3 id='callback'></h3>
+		</p>
+		
+		<hr/>
+		<div>
+			<h4>
+			Get list of projects.
+			</h4>
+			<label>Select status</label>
+			 <select name ="select status" id = 'status'>
+				<option value="All">All</option>
+				<option value="Open">Open</option>
+				<option value="Closed">Closed</option>
+			 </select> 
+		  
+		</div>
+		<button onclick='getLength()'>submit</button>	
+		<p>
+			<h3 id='callbackl'></h3> 
+			<div id="myTable">
+			</div>
+
+		</p>
+        <hr/>
+
+      <div>
+		Browse project details by Id: <input id='projId'>
+	  </div>
+		<button onclick='browseproject()'>Get Details</button>
+		<p>
+			<h3 id='detailsCallback'></h3>
+		</p>
+		
+		<hr/>
+		
+	<div>
+        <h4>
+			Donate for project.
+        </h4>
+        <div>
+			Enter project id  &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp: &nbsp <input id='projId'><br>
+			Enter address to donate &nbsp   : &nbsp <input id='projAddress'><br>
+			Enter amount to donate &nbsp   :  &nbsp <input id='amount'><br>
+        </div>
+        
+		<button onclick='donate()'>Donate</button>
+		</div>
+		<p>
+			<h3 id='transfercallback'></h3>
+		</p>
+		
+		
+<script type="text/javascript" src='raisefund_helper.js'>
+
+</script>
+
+  </body>
+</html>
