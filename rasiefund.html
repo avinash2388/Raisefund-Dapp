@@ -68,9 +68,13 @@
 			{
 				"name": "_id",
 				"type": "uint256"
+			},
+			{
+				"name": "_amount",
+				"type": "uint256"
 			}
 		],
-		"name": "setStatus",
+		"name": "setAmountRaised",
 		"outputs": [],
 		"payable": false,
 		"stateMutability": "nonpayable",
@@ -80,18 +84,14 @@
 		"constant": false,
 		"inputs": [
 			{
-				"name": "_receiever",
-				"type": "address"
-			},
-			{
-				"name": "_amount",
+				"name": "_id",
 				"type": "uint256"
 			}
 		],
-		"name": "transfer",
+		"name": "setStatus",
 		"outputs": [],
-		"payable": true,
-		"stateMutability": "payable",
+		"payable": false,
+		"stateMutability": "nonpayable",
 		"type": "function"
 	},
 	{
@@ -104,8 +104,8 @@
 			},
 			{
 				"indexed": false,
-				"name": "receiver",
-				"type": "address"
+				"name": "id",
+				"type": "uint256"
 			}
 		],
 		"name": "transferred",
@@ -144,6 +144,10 @@
 			{
 				"name": "",
 				"type": "address"
+			},
+			{
+				"name": "",
+				"type": "uint256"
 			}
 		],
 		"payable": false,
@@ -167,6 +171,25 @@
 			{
 				"name": "",
 				"type": "string"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "_id",
+				"type": "uint256"
+			}
+		],
+		"name": "getAmoutRaised",
+		"outputs": [
+			{
+				"name": "",
+				"type": "uint256"
 			}
 		],
 		"payable": false,
@@ -249,7 +272,7 @@
 			},
 			{
 				"name": "",
-				"type": "uint256"
+				"type": "bool"
 			}
 		],
 		"payable": false,
@@ -336,28 +359,10 @@
 		"payable": false,
 		"stateMutability": "view",
 		"type": "function"
-	},
-	{
-		"constant": true,
-		"inputs": [
-			{
-				"name": "_id",
-				"type": "uint256"
-			},
-			{
-				"name": "_amount",
-				"type": "uint256"
-			}
-		],
-		"name": "setAmountRaised",
-		"outputs": [],
-		"payable": false,
-		"stateMutability": "view",
-		"type": "function"
 	}
 ];
       var MyContract = web3.eth.contract(abi);
-	  var myContractInstance = MyContract.at('0x7d34cd95287041ae3b43263dc74fe02de984170d'); // Deployed contract address
+	  var myContractInstance = MyContract.at('0xac321a6fa4b4ed467b7da7850aa3d70cf3db01d3'); // Deployed contract address
 	  //var myContractInstance = MyContract.at('0xcece7a5306be7ff2acf3102b65255fd720346aef'); // web3 contract address
 		  startApp(abi,MyContract,myContractInstance);
 		})
@@ -420,7 +425,7 @@
 			Donate for project.
         </h4>
         <div>
-			Enter project id  &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp: &nbsp <input id='projId'><br>
+			Enter project id  &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp: &nbsp <input id='pId'><br>
 			Enter address to donate &nbsp   : &nbsp <input id='projAddress'><br>
 			Enter amount to donate &nbsp   :  &nbsp <input id='amount'><br>
         </div>
