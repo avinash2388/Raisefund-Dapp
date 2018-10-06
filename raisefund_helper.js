@@ -1,7 +1,7 @@
 var abi;
 var myContractInstance;
 var MyContract;
-var projId;
+var pId;
 var projAddress;
 var amount;
 var length = 0;
@@ -19,7 +19,7 @@ function addProject(){
 	var projDesc = document.getElementById('projDesc').value;
 	var user = document.getElementById('user').value;
 	var dateofPos = document.getElementById('dateofPos').value;
-	var fundGoal = document.getElementById('fundGoal').value;
+	var fundGoal = web3.toWei(document.getElementById('fundGoal').value);
 	var addProject = myContractInstance.addProject(projTitle,projDesc,user,dateofPos,fundGoal,function(err,res){
 		if(err){
 			console.log(err);
@@ -53,15 +53,17 @@ function browseproject(){
 			var msg1 = " Project Title  &nbsp&nbsp : &nbsp " + (res[0]);
 			var msg2 = " Project Desc &nbsp : &nbsp " + (res[1]);
 			var msg3 = " Date of post &nbsp&nbsp : &nbsp&nbsp  " + (res[2]);
-			var msg4 = " Fund Goal &nbsp&nbsp&nbsp&nbsp : &nbsp&nbsp   " + (res[3]) + " ETH";
+			var msg4 = " Fund Goal &nbsp&nbsp&nbsp&nbsp : &nbsp&nbsp   " + web3.fromWei((res[3]), 'ether') + " ETH";
 			var msg5 = " status &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp&nbsp : &nbsp&nbsp  " + (res[4]);
-			var msg6 = " Address to donate &nbsp &nbsp &nbsp &nbsp&nbsp :  " +(res[5]);
+			var msg6 = " Address to donate &nbsp &nbsp &nbsp &nbsp&nbsp :  " + (res[5]);
+			var msg7 = " Total fund raised &nbsp &nbsp &nbsp &nbsp&nbsp :  " + web3.fromWei((res[6]), 'ether') + "ETH";
 			document.getElementById('detailsCallback').innerHTML = ""+msg1; 
 			document.getElementById('detailsCallback').innerHTML += "<br>"+msg2;
 			document.getElementById('detailsCallback').innerHTML += "<br>"+msg3;
 			document.getElementById('detailsCallback').innerHTML += "<br>"+msg4;
 			document.getElementById('detailsCallback').innerHTML += "<br>"+msg5;
 			document.getElementById('detailsCallback').innerHTML += "<br>"+msg6;
+			document.getElementById('detailsCallback').innerHTML += "<br>"+msg7;
 			console.log(res);
 		}
 	});
@@ -194,50 +196,61 @@ function getList() {
 }//getList close
 
 function donate(){ 
-	projId = document.getElementById('projId').value;
+	pId = document.getElementById('pId').value;
 	projAddress = document.getElementById('projAddress').value;
 	console.log(document.getElementById('amount').value);
 	amount = web3.toWei(document.getElementById('amount').value);
-	
-	myContractInstance.getStatus(projId,function(err,res){ 
+	console.log("projId");
+	console.log(pId);
+	myContractInstance.getStatus(pId,function(err,res){ 
 			if(err){
 			console.log(err);
-		} else {
-			projectStatus = res[0];
-		    totalAmountRaised = parseInt(res[1]);
-			console.log("totalamountraised");
-			console.log(totalAmountRaised);
-			console.log(projectStatus);
-			console.log(projAddress);
-			if (projectStatus == "open")
-			transfer();
-		}
-	   }) ;
-	
-}
-
-function transfer(){
-	console.log("projAddress");
-	console.log(projAddress);
-	web3.eth.sendTransaction(
-    {
-      to: projAddress,
-      value: amount
-    },(error, txHash) => {
-	if (error) { throw error }
-	else{
-		myContractInstance.setAmountRaised(projId,amount,function(err,res){ 
-			if(err){
-			console.log(err);
-		} else {
-			console.log("Amount added");
-			console.log(amount);
-			
-		}
-	   }) ;
-	}
+			} else {
+				projectStatus = res[0];
+				var ifDonated = res[1];
+				console.log(projectStatus);
+				console.log("ifdonated");
+				console.log(ifDonated);
+				if (projectStatus == "open" & ifDonated == false){
+					web3.eth.sendTransaction({to: projAddress,value: amount},(error, txHash) => {
+					if (error) { throw error }
+					else{
+					setAmountRaised();
+					}
+					});	
+				}else{
+					window.alert("You already donated for this project");}
+			}
 	});
-
 }
+
+function setAmountRaised(){
+		var amountraised = myContractInstance.setAmountRaised(pId,amount,function(err,res){ 
+			if(err){
+			console.log(err);
+			} 
+			else {
+			console.log(res);
+			}
+	   });
+	   
+	   var event = myContractInstance.transferred({},function(error, result) {
+	 	  if (!error) {
+	 		    var msg = (result.args.amount) + " raised for project id " + (result.args.id);
+				window.alert(msg);
+	 		//    document.getElementById('callback').innerHTML = ""+msg;
+	 		    console.log(msg);
+
+	 	  }
+	 	  else {
+	 		  console.error(error);
+	 	  } 
+	 });
+}
+
+
+
+	
+	
 
  
